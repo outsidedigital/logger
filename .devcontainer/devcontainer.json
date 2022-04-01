@@ -1,0 +1,17 @@
+{
+  "name": "golang",
+  "extensions": [
+    "golang.go",
+    "redhat.vscode-yaml",
+    "vivaxy.vscode-conventional-commits",
+    "yzhang.markdown-all-in-one"
+  ],
+  "context": "golang",
+  "dockerFile": "golang/Dockerfile",
+  "mounts": [
+    "source=${localEnv:HOME}/.gnupg,target=/root/.gnupg,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/golang/gotests,target=/usr/local/share/gotests,type=bind,consistency=cached"
+  ],
+  "workspaceFolder": "/usr/src/logger",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/usr/src/logger,type=bind,consistency=cached",
+}

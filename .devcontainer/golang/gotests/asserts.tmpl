@@ -1,0 +1,44 @@
+{{- define "call" -}}
+{{- $result := "" -}}
+{{- range .Results -}}
+{{- if $result -}}{{- $result = printf "%s, " $result -}}{{- end -}}
+{{- $result = printf "%s%s" $result (Got .) -}}
+{{- end -}}
+{{- if .ReturnsError -}}
+{{- if $result -}}{{- $result = printf "%s, " $result -}}{{- end -}}
+{{- $result = printf "%serr" $result }}
+{{- end -}}
+{{- $inline := ""  -}}
+{{- $multiline := "\n" -}}
+{{- range .Parameters -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- if .Type.IsVariadic -}}
+{{- $inline = printf "%s%s..." $inline (Param .) -}}
+{{- $multiline = printf "%s%s...,\n" $multiline (Param .) -}}
+{{- else -}}
+{{- $inline = printf "%s%s" $inline  (Param .) -}}
+{{- $multiline = printf "%s%s,\n" $multiline (Param .) -}}
+{{- end -}}
+{{- end -}}
+{{- $name := .Name -}}
+{{- with .Receiver -}}{{- $name = printf "%s.%s" .Name $name -}}{{- end -}}
+{{- if ge (len (printf "%s := %s(%s)" $result $name $inline)) 80 -}}
+{{ $result }} := {{ $name }}({{ $multiline }})
+{{- else -}}
+{{ $result }} := {{ $name }}({{ $inline }})
+{{- end -}}
+{{- end -}}
+
+{{- define "asserts" -}}
+{{ template "call" . }}
+{{- if .ReturnsError }}
+{{- if .OnlyReturnsError }}
+require.ErrorIs(t, err, want)
+{{- else }}
+require.ErrorIs(t, err, wantErr)
+{{- end -}}
+{{- end -}}
+{{- range .Results }}
+require.Equal(t, {{ Want . }}, {{ Got . }})
+{{- end -}}
+{{- end -}}

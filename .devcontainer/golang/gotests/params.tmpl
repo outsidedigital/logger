@@ -1,0 +1,59 @@
+{{- define "test-params" -}}
+{{- $inline := "" -}}
+{{- $multiline := "\n" -}}
+{{- with .Receiver -}}
+{{- $inline = printf "%s%s %s" $inline .Name .Type -}}
+{{- $multiline = printf "%s%s %s,\n" $multiline .Name .Type -}}
+{{- end -}}
+{{- range .TestParameters -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- $inline = printf "%s%s %s" $inline (Param .) .Type -}}
+{{- $multiline = printf "%s%s %s,\n" $multiline (Param .) .Type -}}
+{{- end -}}
+{{- range .TestResults -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- $inline = printf "%s%s %s" $inline (Want .) .Type -}}
+{{- $multiline = printf "%s%s %s,\n" $multiline (Want .) .Type -}}
+{{- end -}}
+{{- if .ReturnsError -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- if .OnlyReturnsError -}}
+{{- $inline = printf "%swant error" $inline -}}
+{{- $multiline = printf "%swant error,\n" $multiline -}}
+{{- else -}}
+{{- $inline = printf "%swantErr error" $inline -}}
+{{- $multiline = printf "%swantErr error,\n" $multiline -}}
+{{- end -}}
+{{- end -}}
+{{- if ge (len $inline) 65 }}{{ $multiline }}{{ else }}{{ $inline }}{{ end -}}
+{{- end -}}
+
+{{- define "test-call" -}}
+{{- $inline := "" -}}
+{{- $multiline := "\n" -}}
+{{- with .Receiver -}}
+{{- $inline = printf "%stt.%s" $inline .Name -}}
+{{- $multiline = printf "%stt.%s,\n" $multiline .Name -}}
+{{- end -}}
+{{- range .TestParameters -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- $inline = printf "%stt.%s" $inline (Param .) -}}
+{{- $multiline = printf "%stt.%s,\n" $multiline (Param .) -}}
+{{- end -}}
+{{- range .TestResults -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- $inline = printf "%stt.%s" $inline (Want .) -}}
+{{- $multiline = printf "%stt.%s,\n" $multiline (Want .) -}}
+{{- end -}}
+{{- if .ReturnsError -}}
+{{- if $inline -}}{{- $inline = printf "%s, " $inline -}}{{- end -}}
+{{- if .OnlyReturnsError -}}
+{{- $inline = printf "%stt.want" $inline -}}
+{{- $multiline = printf "%stt.want,\n" $multiline -}}
+{{- else -}}
+{{- $inline = printf "%stt.wantErr" $inline -}}
+{{- $multiline = printf "%stt.wantErr,\n" $multiline -}}
+{{- end -}}
+{{- end -}}
+{{- if ge (len $inline) 75 }}{{ $multiline }}{{ else }}{{ $inline }}{{ end -}}
+{{- end -}}

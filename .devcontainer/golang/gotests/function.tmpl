@@ -1,0 +1,35 @@
+{{ define "function" }}
+func {{ .TestName }}(t *testing.T) {
+	test := func({{ template "test-params" . }}) func(*testing.T) {
+		return func(t *testing.T) {
+			{{ template "asserts" . }}
+		}
+	}
+
+	tests := []struct {
+		name string
+		{{- with .Receiver }}
+		{{ .Name }} {{ .Type }}
+		{{- end }}
+		{{- range .TestParameters }}
+		{{ Param . }} {{ .Type }}
+		{{- end }}
+		{{- range .TestResults }}
+		{{ Want . }} {{ .Type }}
+		{{- end }}
+		{{- if .ReturnsError }}
+		{{- if .OnlyReturnsError }}
+		want error
+		{{- else }}
+		wantErr error
+		{{- end }}
+		{{- end }}
+	} {
+		// TODO: add test cases here.
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, test({{ template "test-call" . }}))
+	}
+}
+{{ end }}
